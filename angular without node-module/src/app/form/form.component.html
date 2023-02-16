@@ -1,0 +1,125 @@
+<form class="example-form" (ngSubmit)="submit();" #myForm="ngForm">
+
+    <div class="example-full-width" cellspacing="0">
+        <!-- שם פרטי -->
+        <mat-form-field class="example-full-width">
+            <mat-label>שם פרטי</mat-label>
+            <input matInput [(ngModel)]="this.parent.firstName" name="firstN" #firstN="ngModel" required />
+        </mat-form-field>
+        <div class="error" *ngIf="firstN.touched && firstN.errors?.required"> שדה חובה</div>
+        <!-- שם משפחה -->
+        <mat-form-field class="example-full-width">
+            <mat-label>שם משפחה</mat-label>
+            <input matInput [(ngModel)]="this.parent.lastName" name="lastN" #lastN="ngModel" required>
+        </mat-form-field>
+        <div class="error" *ngIf="lastN.touched && lastN.errors?.required"> שדה חובה</div>
+        <!-- תעודת זהות -->
+        <mat-form-field class="example-full-width">
+            <mat-label>מס תעודת זהות</mat-label>
+            <input type="text" name="id" #id="ngModel" matInput [(ngModel)]="this.parent.idNumberParent"
+                pattern="[0-9]{9}" required>
+        </mat-form-field>
+        <div class="error" *ngIf="id.touched && id.errors?.required"> שדה חובה</div>
+        <div class="error" *ngIf="id.touched&&id.errors?.pattern">יש להכניס 9 ספרות</div>
+        <!-- תאריך לידה -->
+        <mat-form-field appearance="fill" class="example-full-width">
+            <mat-label>הכנס תאריך לידה</mat-label>
+            <input matInput [(ngModel)]="this.parent.dateOfBirth" name="dateP" #dateP="ngModel" required
+                [matDatepicker]="picker">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <div class="error" *ngIf="dateP.touched &&dateP.errors?.required"> שדה חובה</div>
+        <!--קופת חולים -->
+        <mat-form-field appearance="fill" class="select">
+            <mat-label>בחר קופת חולים</mat-label>
+            <mat-select name="hmo" #hmo="ngModel" [(ngModel)]="this.parent.hmo" required>
+                <mat-option value="מאוחדת">מאוחדת</mat-option>
+                <mat-option value="מכבי">מכבי</mat-option>
+                <mat-option value="כללית">כללית</mat-option>
+                <mat-option value="לאומית">לאומית</mat-option>
+                <mat-option value="אחר">אחר</mat-option>
+            </mat-select>
+            <mat-error *ngIf="hmo.hasError('required')">שדה חובה</mat-error>
+        </mat-form-field>
+        <!--מין -->
+        <mat-form-field appearance="fill">
+            <mat-label>בחר מין</mat-label>
+            <mat-select name="maleOrFemale" #maleOrFemale="ngModel" [(ngModel)]="this.parent.maleOrFemale" required>
+                <mat-option value="male">זכר</mat-option>
+                <mat-option value="female">נקבה</mat-option>
+            </mat-select>
+            <mat-error *ngIf="maleOrFemale.hasError('required')">שדה חובה</mat-error>
+        </mat-form-field>
+
+        <h3>פרטי ילדים</h3>
+        <mat-divider></mat-divider>
+        <input type="button" class="butt" (click)="addChildToParent()" value="הוסף ילד">
+        <div *ngFor="let c of children;let i = index" id="addChild">
+            <p>{{i+1}} ילד מספר</p>
+            <mat-form-field class="example-full-width-Child">
+                <mat-label>שם הילד </mat-label>
+                <input matInput #nameC="ngModel" [ngModelOptions]="{standalone: true}"
+                    [(ngModel)]="this.children[i].name" required />
+            </mat-form-field>
+            <div class="error" *ngIf="nameC.touched && nameC.errors?.required"> שדה חובה</div>
+            <mat-form-field appearance="fill" class="example-full-width">
+                <mat-label>הכנס תאריך לידה</mat-label>
+                <input matInput [(ngModel)]="this.children[i].dateOfBirth" name="dateC" #dateC="ngModel" required
+                    [matDatepicker]="picker">
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <div class="error" *ngIf="dateC.touched &&dateC.errors?.required"> שדה חובה</div>
+
+            <mat-form-field class="example-full-width-Child">
+                <mat-label>מס תעודת זהות</mat-label>
+                <input type="text" matInput #idC="ngModel" [(ngModel)]="this.children[i].idNumberChild"
+                    [ngModelOptions]="{standalone: true}" required pattern="[0-9]{9}">
+            </mat-form-field>
+            <div class="error" *ngIf="idC.touched && idC.errors?.required"> שדה חובה</div>
+            <div class="error" *ngIf="idC.touched&&idC.errors?.pattern">יש להכניס 9 ספרות
+            </div>
+            <mat-divider></mat-divider>
+        </div>
+    </div>
+    <mat-divider></mat-divider>
+
+    <input type="submit" (click)="exportexcel()" value="שלח טופס" [disabled]="!myForm.valid" class="butt" />
+    <div style="display:none">
+
+        <table id="excel-table">
+            <table>
+                <tr>
+                    <th>id </th>
+                    <th>first name </th>
+                    <th>last name </th>
+                    <th>date of birth</th>
+                    <th>hmo </th>
+                    <th>male/female </th>
+                </tr>
+                <tr>
+                    <td>{{this.parent.idNumberParent}}</td>
+                    <td>{{this.parent.firstName}}</td>
+                    <td>{{this.parent.lastName}}</td>
+                    <td>{{this.parent.dateOfBirth}}</td>
+                    <td>{{this.parent.hmo}}</td>
+                    <td>{{this.parent.maleOrFemale}}</td>
+                </tr>
+            </table>
+            <title>ילדים</title>
+            <tr *ngIf="this.children.length>0">
+                <th>id child</th>
+                <th>name child</th>
+                <th>date of birth child</th>
+            </tr>
+            <tr *ngFor="let item of this.children">
+                <td>{{item.idNumberChild}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.dateOfBirth}}</td>
+            </tr>
+        </table>
+    </div>
+</form>
